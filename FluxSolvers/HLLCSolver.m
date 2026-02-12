@@ -1,7 +1,7 @@
 function F = HLLCSolver(qL, qR)
 % qL,qR: 3x1 conserved [h; hu; hpsi]
 % F:   3x1 flux at interface
-global g 
+global g gamma
 global pdetype
 
 switch pdetype
@@ -50,49 +50,52 @@ switch pdetype
         end
     case 1 % Euler
         % Compute pressure and flux for Euler equations
-        rhoL = qL(1); 
-        rhoR = qR(1);
-        uL = qL(2) / rhoL; 
-        uR = qR(2) / rhoR;
-        pL = (gamma - 1) * (qL(3) - 0.5 * rhoL * uL^2);
-        pR = (gamma - 1) * (qR(3) - 0.5 * rhoR * uR^2);
+        rhoL = qL(1); rhoR = qR(1);
+        uL = qL(2)/rhoL;
+        uR = qR(2)/rhoR;
+        EL = qL(3); ER = qR(3);
         
-        fL = [qL(2); 
-              qL(2)*uL + pL;
-              qL(2)*uL^2 + pL];
-        fR = [qR(2); 
-              qR(2)*uR + pR; 
-              qR(2)*uR^2 + pR];
+        pL = (gamma-1)*(EL - 0.5*rhoL*uL^2);
+        pR = (gamma-1)*(ER - 0.5*rhoR*uR^2);
         
-        % Wave speed estimates for Euler equations
-        cL = sqrt(gamma * pL / rhoL); 
-        cR = sqrt(gamma * pR / rhoR);
-        SL = min(uL - cL, uR - cR);
-        SR = max(uL + cL, uR + cR);
+        pL = max(pL,1e-10);
+        pR = max(pR,1e-10);
         
-        if SL >= SR
-            F = (SR*fL - SL*fR + SR*SL*(qR - qL)) / (SR - SL);
-            return
-        end
+        fL = [rhoL*uL;
+              rhoL*uL^2 + pL;
+              uL*(EL+pL)];
         
-        % Contact speed S*
-        Sstar = (SR*qR(2) - SL*qL(2) + pL - pR) / (SR*rhoR - SL*rhoL);
+        fR = [rhoR*uR;
+              rhoR*uR^2 + pR;
+              uR*(ER+pR)];
         
-        % Star states for density and momentum
-        rhoLstar = rhoL * (SL - uL) / (SL - Sstar);
-        rhoRstar = rhoR * (SR - uR) / (SR - Sstar);
-        qLstar = [rhoLstar; rhoLstar * Sstar; rhoLstar * (qL(3)/rhoL)];
-        qRstar = [rhoRstar; rhoRstar * Sstar; rhoRstar * (qR(3)/rhoR)];
+        cL = sqrt(gamma*pL/rhoL);
+        cR = sqrt(gamma*pR/rhoR);
         
-        % HLLC flux selection for Euler equations
+        SL = min(uL-cL,uR-cR);
+        SR = max(uL+cL,uR+cR);
+        
+        Sstar = (pR-pL + rhoL*uL*(SL-uL) - rhoR*uR*(SR-uR)) / ...
+                (rhoL*(SL-uL) - rhoR*(SR-uR));
+        
+        rhoLstar = rhoL*(SL-uL)/(SL-Sstar);
+        rhoRstar = rhoR*(SR-uR)/(SR-Sstar);
+        
+        ELstar = ((SL-uL)*EL - pL*uL + pL*Sstar)/(SL-Sstar);
+        ERstar = ((SR-uR)*ER - pR*uR + pR*Sstar)/(SR-Sstar);
+        
+        qLstar = [rhoLstar; rhoLstar*Sstar; ELstar];
+        qRstar = [rhoRstar; rhoRstar*Sstar; ERstar];
+        
         if SL >= 0
             F = fL;
-        elseif SL <= 0 && Sstar >= 0
-            F = fL + SL*(qLstar - qL);
-        elseif Sstar <= 0 && SR >= 0
-            F = fR + SR*(qRstar - qR);
+        elseif Sstar >= 0
+            F = fL + SL*(qLstar-qL);
+        elseif SR > 0
+            F = fR + SR*(qRstar-qR);
         else
             F = fR;
         end
+
 end
 

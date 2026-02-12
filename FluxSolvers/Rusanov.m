@@ -44,19 +44,41 @@ switch pdetype
         % EULER 1D
         % =========================
         % Define flux vectors for Euler equations
-        pL = QL(3); % left pressure
-        pR = QR(3); % right pressure
+        % Primitive variables
+        VL = PDECons2Prim(QL);
+        VR = PDECons2Prim(QR);
+
+        rhoL = VL(1); 
+        uL   = VL(2);
+        pL   = VL(3);
+        rhoR = VR(1); 
+        uR   = VR(2);
+        pR   = VR(3);
         
-        fL = [QL(1)*uL; 
-              QL(1)*uL^2 + pL; 
-              QL(1)*uL*psiL];
-        fR = [QR(1)*uR; 
-              QR(1)*uR^2 + pR; 
-              QR(1)*uR*psiR];
+        EL = QL(3);
+        ER = QR(3);
         
-        % Calculate maximum wave speed for Euler equations
-        smax = max(abs(uL) + sqrt(gamma * pL / QL(1)), abs(uR) + sqrt(gamma * pR / QR(1)));
+        % Physical fluxes
+        fL = [
+            rhoL*uL;
+            rhoL*uL^2 + pL;
+            uL*(EL + pL)
+        ];
         
-        % Rusanov flux for Euler equations
-        flux = 0.5 * (fL + fR) - 0.5 * smax * (QR - QL);
+        fR = [
+            rhoR*uR;
+            rhoR*uR^2 + pR;
+            uR*(ER + pR)
+        ];
+        
+        % Sound speeds
+        cL = sqrt(gamma * pL / rhoL);
+        cR = sqrt(gamma * pR / rhoR);
+        
+        % Max wave speed
+        smax = max(abs(uL) + cL, abs(uR) + cR);
+        
+        % Rusanov flux
+        flux = 0.5*(fL + fR) - 0.5*smax*(QR - QL);
+
 end

@@ -16,10 +16,10 @@ global pdetype rm_solver
 
 % PROBLEM TO SOLVE
 % 0: Shallow waters, 1: Euler
-pdetype = 0;
+pdetype = 1;
 % TYPE OF RIEMANN SOLVERS
 % 0: Exact, 1: HLLC, 2: Rusanov
-rm_solver = 1;
+rm_solver = 2;
 
 % Define global parameters
 global g gamma
@@ -35,7 +35,7 @@ xR = 1;
 IMAX = 100;                 % number of control volumes
 dx = (xR-xL)/IMAX;          % mesh spacing 
 x = linspace(xL+dx/2,xR-dx/2,IMAX);
-CFL = 0.7;                  % Courant number 
+CFL = 0.9;                  % Courant number 
 NMAX = 10000;               % maximum number of time steps 
 
 %% Initial condition: init solution Q
@@ -45,7 +45,7 @@ switch pdetype
         plotSWE(Q, x, 0)
     case 1
         InitEuler;
-        plotEuler(Q, 0)
+        plotEuler(Q, x, 0)
 end
 
 %% Solve with Finite Voleume scheme
@@ -87,14 +87,13 @@ for n = 1:NMAX
         case 1
             plotEuler(Q, x, time);
             drawnow
-            hold on
     end
 end
 
 %% Plot exact solution
 switch pdetype
     case 0
-         plotExactSWE;
+        plotExactSWE;
     case 1
         plotExactEuler;
 end
