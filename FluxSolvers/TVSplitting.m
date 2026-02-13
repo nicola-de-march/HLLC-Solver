@@ -1,6 +1,6 @@
 function FTV = TVSplitting(QL,QR)
 
-global gamma
+global gamma g
 global pdetype
 
 switch pdetype
@@ -8,6 +8,35 @@ switch pdetype
         % =======================
         % SHALLOW WATERS
         % =======================
+        % Taken from: A flux-vector splitting scheme for the shallow water 
+        % equations extended to high-order on unstructured meshes, Toro et
+        % al.
+        hL = QL(1);            hR = QR(1);
+        uL = QL(2)/hL;         uR = QR(2)/hR;
+        psiL = QL(3)/hL;       psiR = QR(3)/hR;
+        
+        qL = hL*uL;
+        qR = hR*uR;
+        
+        Qstar = 0.5 * (qL + qR) + (1/3)*sqrt(g)*(hL^(3/2) - hR^(3/2));
+        hStar = (0.5*(hL^(3/2) + hR^(3/2)) - (3/(4*sqrt(g))) * (qR - qL));
+        hStar = hStar^(2/3);
+
+        if(Qstar>=0)
+            F_a = [0; 
+                   Qstar*uL;
+                   Qstar*psiL];
+
+        else
+            F_a = [0; 
+                   Qstar*uR;
+                   Qstar*psiR];
+        end
+        F_p = [Qstar;
+               0.5 * g* hStar^2;
+               0];
+
+        FTV = F_a + F_p;  % Combine the fluxes for the shallow water case
     case 1
         % =======================
         % EULER
