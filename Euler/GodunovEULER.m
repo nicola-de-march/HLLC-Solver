@@ -92,6 +92,20 @@ for i=1:IMAX
                 fp = Rusanov(Q(:,i), Q(:,i+1));
                 fm = Rusanov(Q(:,i-1), Q(:,i));
             end
+        case 3
+            % TV Splitting
+            if (i==1)
+                % Dirichlet BC on the left 
+                fp = TVSplitting(Q(:,i), Q(:,i+1));
+                fm = TVSplitting(QL, Q(:,i));
+            elseif (i==IMAX)
+                 % Dirichlet BC on the right 
+                fp = TVSplitting(Q(:,i), QR);
+                fm = TVSplitting(Q(:,i-1), Q(:,i));
+            else
+                fp = TVSplitting(Q(:,i), Q(:,i+1));
+                fm = TVSplitting(Q(:,i-1), Q(:,i));
+            end
     end
     % FV method
     Qnew(:,i) = Q(:,i) - dt/dx*(fp-fm);

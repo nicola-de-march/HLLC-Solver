@@ -58,9 +58,6 @@ switch pdetype
         pL = (gamma-1)*(EL - 0.5*rhoL*uL^2);
         pR = (gamma-1)*(ER - 0.5*rhoR*uR^2);
         
-        pL = max(pL,1e-10);
-        pR = max(pR,1e-10);
-        
         fL = [rhoL*uL;
               rhoL*uL^2 + pL;
               uL*(EL+pL)];

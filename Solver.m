@@ -18,8 +18,8 @@ global pdetype rm_solver
 % 0: Shallow waters, 1: Euler
 pdetype = 1;
 % TYPE OF RIEMANN SOLVERS
-% 0: Exact, 1: HLLC, 2: Rusanov
-rm_solver = 2;
+% 0: Exact, 1: HLLC, 2: Rusanov, 3: TVD
+rm_solver = 3;
 
 % Define global parameters
 global g gamma
