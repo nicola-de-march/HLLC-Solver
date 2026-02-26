@@ -16,10 +16,10 @@ global pdetype rm_solver
 
 % PROBLEM TO SOLVE
 % 0: Shallow waters, 1: Euler
-pdetype = 1;
+pdetype = 0;
 % TYPE OF RIEMANN SOLVERS
 % 0: Exact, 1: HLLC, 2: Rusanov, 3: TV Splitting
-rm_solver = 3;
+rm_solver = 1;
 
 % Define global parameters
 global g gamma
@@ -28,7 +28,7 @@ gamma = 1.4;
 
 %% Init grids and time steps
 time = 0;                   % initial and current time
-tend = 0.5;                 % final time
+tend = 0.2;                 % final time
 xL = -1;                    % computational domain
 xR = 1;  
 
@@ -48,7 +48,7 @@ switch pdetype
         plotEuler(Q, x, 0)
 end
 
-%% Solve with Finite Voleume scheme
+%% Solve with Finite Volume scheme
 
 for n = 1:NMAX
     % compute the maximum of the absolute value of all eigenvalues 
@@ -86,10 +86,15 @@ for n = 1:NMAX
             hold on
         case 1
             plotEuler(Q, x, time);
-            drawnow
     end
 end
-
+%% Save data final time
+switch pdetype
+    case 0
+    case 1
+        disp('Saving to file...')
+        saveFinalTimeEuler(Q, x, tend, false);
+end
 %% Plot exact solution
 switch pdetype
     case 0

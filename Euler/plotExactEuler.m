@@ -30,3 +30,25 @@ hold on
 plot(xe, p, 'b-')   
 
 drawnow
+
+% Create data structure
+rm_solver_string = 'Exact';
+data.x   = xe;
+data.t   = time;
+data.rho = rho;
+data.u   = u;
+data.p   = p;
+data.solver = 'Exact';
+
+% Create folder if it does not exist
+folder_name = fullfile('Output', rm_solver_string);
+if ~exist(folder_name, 'dir')
+    mkdir(folder_name);
+end
+
+% File name (time with fixed formatting to avoid floating errors)
+file_name = sprintf('Euler_%s.mat', rm_solver_string);
+full_path = fullfile(folder_name, file_name);
+
+% Save
+save(full_path, 'data');

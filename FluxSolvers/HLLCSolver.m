@@ -6,7 +6,11 @@ global pdetype
 
 switch pdetype
     case 0
-        % Shallow waters
+
+        % =======================
+        % SHALLOW WATERS
+        % =======================
+        % Taken from slides Prof. Toro
         hmin = 1e-8;
         hL = max(qL(1), hmin); hR = max(qR(1), hmin);
         uL = qL(2)/hL;         uR = qR(2)/hR;
@@ -24,7 +28,6 @@ switch pdetype
         SR = max(uL + cL, uR + cR);
         
         if SL >= SR
-            % fallback HLL average (3 comp.)
             F = (SR*fL - SL*fR + SR*SL*(qR - qL)) / (SR - SL);
             return
         end
@@ -35,10 +38,10 @@ switch pdetype
         % star states for h and hu
         hLstar = hL * (SL - uL) / (SL - Sstar);
         hRstar = hR * (SR - uR) / (SR - Sstar);
-        qLstar = [hLstar; hLstar * Sstar; hLstar * psiL]; % third comp built from psiL
+        qLstar = [hLstar; hLstar * Sstar; hLstar * psiL]; 
         qRstar = [hRstar; hRstar * Sstar; hRstar * psiR];
         
-        % HLLC flux selection (3 comp.)
+        % HLLC flux selection 
         if SL >= 0
             F = fL;
         elseif SL <= 0 && Sstar >= 0
@@ -48,8 +51,12 @@ switch pdetype
         else
             F = fR;
         end
-    case 1 % Euler
-        % Compute pressure and flux for Euler equations
+    case 1 
+        % =======================
+        % EULER EQUATION
+        % =======================
+        
+        % Compute primitive variables
         rhoL = qL(1); rhoR = qR(1);
         uL = qL(2)/rhoL;
         uR = qR(2)/rhoR;
@@ -58,6 +65,7 @@ switch pdetype
         pL = (gamma-1)*(EL - 0.5*rhoL*uL^2);
         pR = (gamma-1)*(ER - 0.5*rhoR*uR^2);
         
+        % Physical fluxes
         fL = [rhoL*uL;
               rhoL*uL^2 + pL;
               uL*(EL+pL)];
@@ -66,15 +74,37 @@ switch pdetype
               rhoR*uR^2 + pR;
               uR*(ER+pR)];
         
+        % Speed of sound
         cL = sqrt(gamma*pL/rhoL);
         cR = sqrt(gamma*pR/rhoR);
         
-        SL = min(uL-cL,uR-cR);
-        SR = max(uL+cL,uR+cR);
+        %  Toro pressure-based estimate
+        %  See The HLLC Riemann solver, Toro
+        z = (gamma - 1) / (2*gamma);
         
+        pstar = ( (cL + cR - (gamma-1)/2*(uR-uL)) / ...
+                  (cL/pL^z + cR/pR^z) )^(1/z);
+        
+        if (pstar <= pL)
+            qLcorr = 1;
+        else
+            qLcorr = sqrt(1 + (gamma+1)/(2*gamma)*(pstar/pL - 1));
+        end
+        
+        if (pstar <= pR)
+            qRcorr = 1;
+        else
+            qRcorr = sqrt(1 + (gamma+1)/(2*gamma)*(pstar/pR - 1));
+        end
+        
+        SL = uL - cL*qLcorr;
+        SR = uR + cR*qRcorr;
+        
+        % Contact wave speed
         Sstar = (pR-pL + rhoL*uL*(SL-uL) - rhoR*uR*(SR-uR)) / ...
                 (rhoL*(SL-uL) - rhoR*(SR-uR));
         
+        % Star states
         rhoLstar = rhoL*(SL-uL)/(SL-Sstar);
         rhoRstar = rhoR*(SR-uR)/(SR-Sstar);
         
@@ -84,12 +114,13 @@ switch pdetype
         qLstar = [rhoLstar; rhoLstar*Sstar; ELstar];
         qRstar = [rhoRstar; rhoRstar*Sstar; ERstar];
         
+        % HLLC flux
         if SL >= 0
             F = fL;
         elseif Sstar >= 0
-            F = fL + SL*(qLstar-qL);
+            F = fL + SL*(qLstar - qL);
         elseif SR > 0
-            F = fR + SR*(qRstar-qR);
+            F = fR + SR*(qRstar - qR);
         else
             F = fR;
         end

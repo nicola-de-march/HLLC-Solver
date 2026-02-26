@@ -1,5 +1,7 @@
 function plotEuler(Q, x, t)
 
+global rm_solver
+
 % Converte Q in variabili primitive
 V = PDECons2Prim(Q);  % V = [rho; u; p]
 
@@ -28,3 +30,4 @@ cla
 plot(x, p, Color=[0.9290 0 0.1250], Marker='o', MarkerSize=3, LineStyle='none')
 xlabel('x')
 ylabel('p')
+

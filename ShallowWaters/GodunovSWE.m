@@ -14,12 +14,12 @@ for i=1:IMAX
                 % Godunov flux
                 QGod = ExactRiemannSW(Q(:,i),Q(:,i+1),0);
                 fp = f(QGod);
-                QGod = ExactRiemannSW(2*QL-Q(:,i),Q(:,i),0);
+                QGod = ExactRiemannSW(QL,Q(:,i),0);
                 fm = f(QGod);
             elseif (i==IMAX)
                  % Dirichlet BC on the right 
                 % Godunov flux
-                QGod = ExactRiemannSW(Q(:,i),2*QR-Q(:,i),0);
+                QGod = ExactRiemannSW(Q(:,i),QR,0);
                 fp = f(QGod);
                 QGod = ExactRiemannSW(Q(:,i-1),Q(:,i),0);
                 fm = f(QGod);
@@ -35,10 +35,10 @@ for i=1:IMAX
             if (i==1)
                 % Dirichlet BC on the left 
                 fp = HLLCSolver(Q(:,i),Q(:,i+1));
-                fm = HLLCSolver(2*QL-Q(:,i),Q(:,i));
+                fm = HLLCSolver(QL,Q(:,i));
             elseif (i==IMAX)
                  % Dirichlet BC on the right 
-                fp = HLLCSolver(Q(:,i),2*QR-Q(:,i));
+                fp = HLLCSolver(Q(:,i),QR);
                 fm = HLLCSolver(Q(:,i-1),Q(:,i));
             else
                 fp = HLLCSolver(Q(:,i),Q(:,i+1));
@@ -49,10 +49,10 @@ for i=1:IMAX
             if (i==1)
                 % Dirichlet BC on the left 
                 fp = Rusanov(Q(:,i),Q(:,i+1));
-                fm = Rusanov(2*QL-Q(:,i),Q(:,i));
+                fm = Rusanov(QL,Q(:,i));
             elseif (i==IMAX)
                  % Dirichlet BC on the right 
-                fp = Rusanov(Q(:,i),2*QR-Q(:,i));
+                fp = Rusanov(Q(:,i),QR);
                 fm = Rusanov(Q(:,i-1),Q(:,i));
             else
                 fp = Rusanov(Q(:,i),Q(:,i+1));

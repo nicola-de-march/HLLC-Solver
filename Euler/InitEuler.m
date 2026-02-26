@@ -1,16 +1,16 @@
 %% Define the Riemann problem
 global gamma
 
-rhoL = 1;                % left density
+rhoL = 1.0;                % left density
 rhoR = 0.125;            % right density
-uL   = 0;                % left velocity
+uL   = 0.75;                % left velocity
 uR   = 0;                % right velocity
 pL   = 1;                % left pressure 
 pR   = 0.1;              % right pressure 
-xc = 0;
+xc = -0.5;
 
-V_init_L = [1; 0; 1];
-V_init_R = [0.125; 0; 0.1];
+V_init_L = [rhoL; uL; pL];
+V_init_R = [rhoR; uR; pR];
 
 QL = [rhoL; 
       rhoL*uL; 
