@@ -1,8 +1,8 @@
 %% Define the Riemann problem
-hL   = 0.51;                % left water depth
-hR   = 0.48;                % right water depth
-uL   = 2.5;                   % left velocity
-uR   = -5.8;                   % right velocity
+hL   = 1;                % left water depth
+hR   = 0.1;                % right water depth
+uL   = 0;                   % left velocity
+uR   = 0;                   % right velocity
 psiL = 1;                   % left scalar 
 psiR = 0;                   % right scalar 
 xc = 0;

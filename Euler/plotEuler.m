@@ -31,3 +31,4 @@ plot(x, p, Color=[0.9290 0 0.1250], Marker='o', MarkerSize=3, LineStyle='none')
 xlabel('x')
 ylabel('p')
 
+drawnow

@@ -6,11 +6,11 @@ global pdetype
 
 switch pdetype
     case 0
-
         % =======================
         % SHALLOW WATERS
         % =======================
         % Taken from slides Prof. Toro
+
         hmin = 1e-8;
         hL = max(qL(1), hmin); hR = max(qR(1), hmin);
         uL = qL(2)/hL;         uR = qR(2)/hR;
@@ -24,8 +24,23 @@ switch pdetype
         
         % wave speed estimates
         cL = sqrt(g*hL); cR = sqrt(g*hR);
-        SL = min(uL - cL, uR - cR);
-        SR = max(uL + cL, uR + cR);
+        a_TR_squared = 0.5 * (cL + cR) - 0.25 * (uR - uL);
+        h_bar_star = a_TR_squared / g;
+        % Compute correction Left
+        if h_bar_star > hL
+            qL_cor = sqrt(0.5*((h_bar_star + hL)* h_bar_star) / hL^2);
+        else 
+            qL_cor = 1;
+        end
+        % Compute correction Right
+        if h_bar_star > hR
+            qR_cor = sqrt(0.5*((h_bar_star + hR)* h_bar_star) / hR^2);
+        else 
+            qR_cor = 1;
+        end
+
+        SL = uL - qL_cor*cL;
+        SR = uR + qR_cor*cR;
         
         if SL >= SR
             F = (SR*fL - SL*fR + SR*SL*(qR - qL)) / (SR - SL);

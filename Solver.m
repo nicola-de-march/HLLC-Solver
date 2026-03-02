@@ -83,9 +83,10 @@ for n = 1:NMAX
         case 0
             plotSWE(Q, x, time);
             drawnow
-            hold on
+            %hold on
         case 1
             plotEuler(Q, x, time);
+            
     end
 end
 %% Save data final time
@@ -102,9 +103,3 @@ switch pdetype
     case 1
         plotExactEuler;
 end
-
-
-
-
-
-

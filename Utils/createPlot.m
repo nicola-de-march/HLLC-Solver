@@ -17,7 +17,7 @@ disp(methods)
 
 %% Filter methods
 % 
-tmp = ["Rusanov","Exact","TV"];
+tmp = ["HLLC","Exact","TV"];
 methods = methods(ismember(methods, tmp));
 
 %% Plot
